@@ -37,8 +37,10 @@ npm install
 npm run build
 ```
 
-3. Start the Planka containers:
+3. Start the Docker containers (Planka, PostgreSQL, and the MCP server):
 ```bash
+docker compose up
+# or use the convenience script
 npm run up
 ```
 
@@ -135,7 +137,7 @@ For more details on these strategies, see the [Capabilities and Strategies](http
 
 - `npm run build`: Build the TypeScript code
 - `npm run build-docker`: Build the TypeScript code and create a Docker image
-- `npm run up`: Start the Planka containers (kanban and postgres)
+- `npm run up`: Start all containers (Planka, Postgres, and the MCP server)
 - `npm run down`: Stop all containers
 - `npm run restart`: Restart the Planka containers
 - `npm run start-node`: Start the MCP server directly with Node (for testing outside of Cursor)

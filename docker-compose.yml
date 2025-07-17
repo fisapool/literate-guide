@@ -27,6 +27,21 @@ services:
       - kanban-project-background-images:/app/public/project-background-images
       - kanban-attachments:/app/private/attachments
 
+  mcp-kanban:
+    build: .
+    container_name: mcp-kanban
+    restart: unless-stopped
+    ports:
+      - "${MCP_KANBAN_PORT}:3008"
+    depends_on:
+      - kanban
+    environment:
+      - PLANKA_BASE_URL=http://kanban:1337
+      - PLANKA_AGENT_EMAIL=${PLANKA_AGENT_EMAIL}
+      - PLANKA_AGENT_PASSWORD=${PLANKA_AGENT_PASSWORD}
+    volumes:
+      - mcp-kanban-attachments:/app/attachments
+
   postgres:
     image: postgres:15-alpine
     container_name: kanban-postgres
@@ -61,3 +76,4 @@ volumes:
   kanban-user-avatars:
   kanban-project-background-images:
   kanban-attachments:
+  mcp-kanban-attachments:
