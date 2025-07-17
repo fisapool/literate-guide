@@ -1,297 +1,49 @@
-# 🤖 AGENTS.md - Kanban MCP Agent Guide
-
-Welcome to the Kanban MCP repository! This guide is designed to help agents (AI assistants and human developers) understand, contribute to, and work effectively with this project management integration system.
-
-## 📋 Repository Overview
-
-**Kanban MCP** is a Model Context Protocol (MCP) server that bridges [Planka](https://planka.app/) (an open-source kanban board) with AI assistants like Claude, enabling automated project management capabilities.
+# **AGENTS.md**
 
-### 🎯 Key Focus Areas for Agents
+This document provides essential context for AI agents to understand and interact with the literate-guide repository. The primary goal of this project is to act as a middleware service, or Middleware Co-Pilot (MCP), connecting a large language model to a Planka Kanban board.
 
-| Area | Purpose | Key Files |
-|------|---------|-----------|
-| **Core Server** | MCP protocol implementation | `index.ts` |
-| **Operations** | Planka API interactions | `operations/*.ts` |
-| **Tools** | Custom utility functions | `tools/index.ts` |
-| **Common** | Shared types and utilities | `common/*.ts` |
-| **Tests** | Integration and unit tests | `tests/*.ts` |
-
-### 🏗️ Architecture Overview
+### **1\. Project Overview**
 
-```
-kanban-mcp/
-├── index.ts                 # Main MCP server entry point
-├── operations/              # Planka API operations
-│   ├── boards.ts           # Board CRUD operations
-│   ├── cards.ts            # Card management
-│   ├── lists.ts            # List management
-│   ├── tasks.ts            # Task management
-│   └── ...                 # Other entity operations
-├── tools/                  # Custom utility tools
-│   ├── create-card-with-tasks.ts
-│   ├── board-summary.ts
-│   └── workflow-actions.ts
-├── common/                 # Shared utilities
-│   ├── types.ts            # TypeScript type definitions
-│   ├── errors.ts           # Error handling
-│   └── utils.ts            # Helper functions
-└── tests/                  # Test suites
-```
+This project is a TypeScript-based middleware that exposes a RESTful API to perform operations on a Planka Kanban board. It is designed to be used as a local server within VS Code, allowing an AI agent to manage software projects by interacting with a Kanban board programmatically.
 
-## 🚀 Contributor Guide
+### **2\. Key Libraries and Technologies**
 
-### Prerequisites
+* **Core Language**: TypeScript  
+* **API Framework**: The project uses a custom setup to serve an API defined by openapi.yaml.  
+* **Planka Integration**: It uses the @plankas/node-sdk for all interactions with the Planka API.  
+* **Environment**: The application is designed to run on Node.js and can be containerized using the provided docker-compose.yml file.
 
-- **Node.js** 18+ with npm/pnpm
-- **Docker** for Planka development environment
-- **TypeScript** knowledge
-- **MCP protocol** understanding (see [MCP SDK](https://github.com/modelcontextprotocol/typescript-sdk))
+### **3\. Architectural Principles**
 
-### Development Environment Setup
+* **API-First Design**: The core capabilities are exposed through a RESTful API, with the schema formally defined in openapi.yaml. This is the primary interface for interaction.  
+* **Separation of Concerns**:  
+  * **Operations**: Low-level business logic for interacting with individual Planka resources (like cards, boards, lists) is isolated in the operations/ directory.  
+  * **Tools**: Higher-level, composite functions designed for agent use are located in the tools/ directory. **Agents should prefer using these tools over raw operations.**  
+* **Configuration**: The MCP server is configured via .vscode/mcp.json.
 
-```bash
-# 1. Clone and install
-git clone https://github.com/bradrisse/kanban-mcp.git
-cd kanban-mcp
-npm install
+### **4\. How to Operate the Kanban MCP**
 
-# 2. Start development environment
-npm run up                    # Start Planka via Docker
-npm run build                # Build TypeScript
-npm run watch               # Watch mode for development
+As an agent, your primary goal is to use the provided tools to manage the Kanban board.
 
-# 3. Test the setup
-npm test                    # Run test suite
-npm run inspector           # Launch MCP inspector for testing
-```
+#### **Core Commands:**
 
-### Environment Configuration
+* **Installation**: npm install  
+* **Build**: npm run build (This compiles TypeScript files into the dist directory)  
+* **Run Server**: node dist/index.js  
+* **Run Tests**: npm test (This will run integration tests using Jest)
 
-Create `.env` file:
-```bash
-PLANKA_BASE_URL=http://localhost:3333
-PLANKA_AGENT_EMAIL=demo@demo.demo
-PLANKA_AGENT_PASSWORD=demo
-```
+#### **Available Agent Tools:**
 
-## 🧪 Testing Instructions
-
-### Running Tests
+You should import and use the functions available in tools/index.ts. Key tools include:
 
-```bash
-# Run all tests
-npm test
+* boardSummary: To get a high-level overview of a specific board, including its lists and the cards within them.  
+* cardDetails: To retrieve detailed information about a single card, including its tasks, comments, and labels.  
+* createCardWithTasks: To create a new card and simultaneously populate it with a list of checklist tasks.  
+* moveCard: To move a card from one list to another (e.g., from 'To Do' to 'In Progress').
 
-# Run specific test file
-npm test -- tests/integration.test.ts
+**Example Workflow:**
 
-# Run tests in watch mode
-npm test -- --watch
-```
-
-### Test Structure
-
-- **Integration tests**: `tests/integration.test.ts`
-- **Unit tests**: Individual operation tests
-- **MCP inspector**: `npm run inspector` for interactive testing
-
-### CI/CD Pipeline
-
-The project uses GitHub Actions for:
-- TypeScript compilation
-- Linting (ESLint)
-- Test execution
-- Docker image building
-
-## 📤 PR Instructions
-
-### Pull Request Format
-
-**Title Format**: `[TYPE] Brief description`
-
-Types:
-- `[FEAT]`: New feature
-- `[FIX]`: Bug fix
-- `[DOCS]`: Documentation updates
-- `[REFACTOR]`: Code refactoring
-- `[TEST]`: Test additions/improvements
-
-**PR Template**:
-```markdown
-## Summary
-Brief description of changes
-
-## Changes Made
-- List specific changes
-- Include any breaking changes
-
-## Testing
-- [ ] Tests pass locally
-- [ ] Manual testing completed
-- [ ] MCP inspector validation
-
-## Related Issues
-Fixes #issue-number
-```
-
-### AI Tool Prompting Tips
-
-When using AI tools like Codex:
-
-1. **Provide context**: Include relevant file paths and function names
-2. **Be specific**: Use exact parameter names from the API
-3. **Include examples**: Reference existing patterns in the codebase
-4. **Test incrementally**: Validate each change with the MCP inspector
-
-## 🔧 Customization and Debugging
-
-### Tailoring MCP Tasks
-
-#### Adding New Operations
-
-1. Create new file in `operations/`:
-```typescript
-// operations/newFeature.ts
-export async function newOperation(params: Params): Promise<Result> {
-  // Implementation
-}
-```
-
-2. Register in `index.ts`:
-```typescript
-server.tool("mcp_kanban_new_feature", "Description", schema, handler);
-```
-
-#### Custom Tool Development
-
-1. Create tool in `tools/`:
-```typescript
-// tools/custom-tool.ts
-export async function customTool(params: CustomParams): Promise<Result> {
-  // Custom logic
-}
-```
-
-2. Export from `tools/index.ts`:
-```typescript
-export { customTool } from './custom-tool.js';
-```
-
-### Debugging Strategies
-
-#### Using MCP Inspector
-```bash
-# Start inspector with demo data
-npm run inspector:demo
-
-# Custom inspector session
-npm run inspector
-```
-
-#### Log Analysis
-- Enable debug logging: Set `DEBUG=*` environment variable
-- Check Docker logs: `docker compose logs kanban`
-- Monitor network requests via browser dev tools
-
-#### Common Issues and Solutions
-
-| Issue | Solution |
-|-------|----------|
-| **Connection refused** | Verify Planka is running: `npm run up` |
-| **Authentication failed** | Check credentials in `.env` |
-| **TypeScript errors** | Run `npm run build` to see detailed errors |
-| **MCP tool not found** | Ensure tool is registered in `index.ts` |
-
-### Large Task Management
-
-For complex features:
-
-1. **Break into phases**:
-   - Phase 1: Core functionality
-   - Phase 2: Error handling
-   - Phase 3: Testing and documentation
-
-2. **Use feature flags**:
-   ```typescript
-   const FEATURE_FLAGS = {
-     newFeature: process.env.ENABLE_NEW_FEATURE === 'true'
-   };
-   ```
-
-3. **Incremental deployment**:
-   - Test with MCP inspector
-   - Deploy to staging environment
-   - Gradual rollout to production
-
-## 🔄 Migration Guidelines
-
-### Current Migration Areas
-
-#### API Standardization (Q1 2025)
-- **Goal**: Implement OpenAPI 3.0 specification
-- **Status**: In progress
-- **Files affected**: `operations/*.ts`, `index.ts`
-- **Validation**: Use OpenAPI validator tools
-
-#### Webhook Implementation (Q1 2025)
-- **Goal**: Add webhook emitters for board events
-- **Status**: Planning phase
-- **Files to create**: `webhooks/`, `events/`
-- **Validation**: Webhook testing endpoints
-
-#### Metadata Enhancement (Q2 2025)
-- **Goal**: Support custom fields and structured metadata
-- **Status**: Design phase
-- **Files to modify**: `operations/cards.ts`, `common/types.ts`
-
-### Change Validation Process
-
-1. **Code Quality Checks**:
-   ```bash
-   npm run qc                    # Lint + type checking
-   npm test                      # Full test suite
-   ```
-
-2. **Manual Testing**:
-   ```bash
-   npm run inspector             # Interactive testing
-   npm run start-node            # Direct Node.js testing
-   ```
-
-3. **Integration Testing**:
-   - Test with actual Planka instance
-   - Verify MCP protocol compliance
-   - Check backward compatibility
-
-## 📊 Performance Guidelines
-
-### Optimization Targets
-
-- **API calls**: Minimize Planka API calls through batching
-- **Memory usage**: Efficient data structures in tools
-- **Response time**: < 2s for standard operations
-
-### Monitoring
-
-- Use MCP inspector for performance profiling
-- Monitor Docker resource usage
-- Track API response times
-
-## 🎯 Next Steps for Agents
-
-1. **Explore the codebase**: Start with `index.ts` and follow the tool registration patterns
-2. **Run the test suite**: Ensure your environment is properly configured
-3. **Try the MCP inspector**: Get hands-on experience with the API
-4. **Pick a good first issue**: Look for issues labeled `good-first-issue`
-5. **Join the community**: Engage with maintainers and other contributors
-
-## 📞 Support and Resources
-
-- **Documentation**: [Wiki](https://github.com/bradrisse/kanban-mcp/wiki)
-- **Issues**: [GitHub Issues](https://github.com/bradrisse/kanban-mcp/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/bradrisse/kanban-mcp/discussions)
-- **MCP Protocol**: [Official MCP Documentation](https://modelcontextprotocol.io/)
-
----
-
-**Remember**: This is a living document. Update it as the project evolves and new patterns emerge. When in doubt, ask questions in the project's discussions or issues!
+1. To understand the current state of a project, call the boardSummary tool.  
+2. To begin work on a task, use the moveCard tool to shift the relevant card to the "In Progress" list.  
+3. When a user requests a new feature, use createCardWithTasks to add it to the "To Do" list with all sub-tasks defined.  
+4. Always reference openapi.yaml for detailed endpoint definitions and data schemas if you need to interact at a lower level than the provided tools.
