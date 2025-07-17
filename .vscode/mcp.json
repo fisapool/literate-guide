@@ -1,0 +1,25 @@
+{
+	"servers": {
+		"kanban": {
+			"type": "stdio",
+			"command": "node",
+			"args": [
+				"${workspaceFolder}/dist/index.js"
+			],
+			"env": {
+				"PLANKA_BASE_URL": "http://localhost:3333",
+				"PLANKA_AGENT_EMAIL": "demo@demo.demo",
+				"PLANKA_AGENT_PASSWORD": "demo"
+			}
+		},
+		"my-mcp-server-d70eb692": {
+			"type": "stdio",
+			"command": "MCP:",
+			"args": [
+				"Test",
+				"Connection"
+			]
+		}
+	},
+	"inputs": []
+}

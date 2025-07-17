@@ -1,0 +1,59 @@
+{
+  "demo_requests": [
+    {
+      "name": "Get Board Summary",
+      "tool": "get_board_summary",
+      "args": {
+        "boardId": "demo-board-id"
+      }
+    },
+    {
+      "name": "Create Demo Card",
+      "tool": "create_card_with_tasks",
+      "args": {
+        "listId": "todo-list-id",
+        "title": "VSCode MCP Demo Card",
+        "description": "Testing MCP integration from VSCode",
+        "tasks": [
+          {"name": "Configure MCP settings", "isCompleted": true},
+          {"name": "Test MCP tools", "isCompleted": false},
+          {"name": "Document findings", "isCompleted": false}
+        ]
+      }
+    },
+    {
+      "name": "Get Card Details",
+      "tool": "get_card_details",
+      "args": {
+        "cardId": "new-card-id"
+      }
+    },
+    {
+      "name": "Move Card Workflow",
+      "tool": "workflow_actions",
+      "args": {
+        "action": "move_card",
+        "cardId": "card-id-to-move",
+        "targetListId": "in-progress-list-id"
+      }
+    },
+    {
+      "name": "Add Comment",
+      "tool": "add_comment",
+      "args": {
+        "cardId": "target-card-id",
+        "text": "MCP integration test successful!"
+      }
+    }
+  ],
+  "environment_variables": {
+    "PLANKA_BASE_URL": "http://localhost:3333",
+    "PLANKA_AGENT_EMAIL": "demo@demo.demo",
+    "PLANKA_AGENT_PASSWORD": "demo"
+  },
+  "setup_commands": [
+    "npm install",
+    "npm run build",
+    "npm run up"
+  ]
+}
