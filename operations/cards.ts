@@ -9,6 +9,7 @@
 import { z } from "zod";
 import { plankaRequest } from "../common/utils.js";
 import { PlankaCardSchema, PlankaStopwatchSchema } from "../common/types.js";
+import { emitEvent } from "../webhooks/index.js";
 
 // Schema definitions
 /**
@@ -23,6 +24,16 @@ export const CreateCardSchema = z.object({
     name: z.string().describe("Card name"),
     description: z.string().optional().describe("Card description"),
     position: z.number().optional().describe("Card position (default: 65535)"),
+    /** Custom metadata object */
+    metadata: z
+        .record(z.any())
+        .optional()
+        .describe("Structured metadata for the card"),
+    /** Optional knowledge asset identifier */
+    ragQueryId: z
+        .string()
+        .optional()
+        .describe("Knowledge asset identifier"),
 });
 
 /**
@@ -59,6 +70,14 @@ export const UpdateCardSchema = z.object({
     isCompleted: z.boolean().optional().describe(
         "Whether the card is completed",
     ),
+    metadata: z
+        .record(z.any())
+        .optional()
+        .describe("Structured metadata for the card"),
+    ragQueryId: z
+        .string()
+        .optional()
+        .describe("Knowledge asset identifier"),
 });
 
 export const MoveCardSchema = z.object({
@@ -136,18 +155,23 @@ const CardResponseSchema = z.object({
  */
 export async function createCard(options: CreateCardOptions) {
     try {
+        const description = encodeMetadata(options.description, {
+            ...(options.metadata || {}),
+            ...(options.ragQueryId ? { ragQueryId: options.ragQueryId } : {}),
+        });
         const response = await plankaRequest(
             `/api/lists/${options.listId}/cards`,
             {
                 method: "POST",
                 body: {
                     name: options.name,
-                    description: options.description,
+                    description,
                     position: options.position,
                 },
             },
         );
         const parsedResponse = CardResponseSchema.parse(response);
+        emitEvent("card.created", { card: parsedResponse.item });
         return parsedResponse.item;
     } catch (error) {
         throw new Error(
@@ -269,11 +293,18 @@ export async function updateCard(
     id: string,
     options: Partial<Omit<CreateCardOptions, "listId">>,
 ) {
+    const description = encodeMetadata(options.description, {
+        ...(options as any).metadata,
+        ...((options as any).ragQueryId
+            ? { ragQueryId: (options as any).ragQueryId }
+            : {}),
+    });
     const response = await plankaRequest(`/api/cards/${id}`, {
         method: "PATCH",
-        body: options,
+        body: { ...options, description },
     });
     const parsedResponse = CardResponseSchema.parse(response);
+    emitEvent("card.updated", { card: parsedResponse.item });
     return parsedResponse.item;
 }
 
@@ -308,6 +339,7 @@ export async function moveCard(
 
         // Parse and return the updated card
         const parsedResponse = CardResponseSchema.parse(response);
+        emitEvent("card.moved", { card: parsedResponse.item });
         return parsedResponse.item;
     } catch (error) {
         throw new Error(
@@ -556,4 +588,41 @@ function formatDuration(seconds: number): string {
     result += `${remainingSeconds}s`;
 
     return result.trim();
+}
+
+/**
+ * Encode metadata into the description using an HTML comment.
+ */
+function encodeMetadata(
+    description: string | undefined,
+    metadata?: Record<string, unknown>,
+): string {
+    if (!metadata || Object.keys(metadata).length === 0) {
+        return description || "";
+    }
+    const metaString = JSON.stringify(metadata);
+    const desc = description || "";
+    return `${desc}\n<!--metadata:${metaString}-->`;
+}
+
+/**
+ * Decode metadata from a description string.
+ */
+function decodeMetadata(
+    description: string | null,
+): { description: string; metadata?: Record<string, unknown> } {
+    if (!description) {
+        return { description: "" };
+    }
+    const match = description.match(/<!--metadata:(.*?)-->/);
+    if (!match) {
+        return { description };
+    }
+    try {
+        const metadata = JSON.parse(match[1]);
+        const clean = description.replace(match[0], "").trim();
+        return { description: clean, metadata };
+    } catch {
+        return { description };
+    }
 }

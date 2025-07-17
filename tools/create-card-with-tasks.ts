@@ -25,6 +25,14 @@ export const createCardWithTasksSchema = z.object({
     position: z.number().optional().describe(
         "Optional position for the card in the list",
     ),
+    metadata: z
+        .record(z.any())
+        .optional()
+        .describe("Structured metadata for the card"),
+    ragQueryId: z
+        .string()
+        .optional()
+        .describe("Knowledge asset identifier"),
 });
 
 /**
@@ -51,7 +59,16 @@ export type CreateCardWithTasksParams = z.infer<
  * @throws {Error} If there's an error creating the card, tasks, or comment
  */
 export async function createCardWithTasks(params: CreateCardWithTasksParams) {
-    const { listId, name, description, tasks, comment, position = 65535 } =
+    const {
+        listId,
+        name,
+        description,
+        tasks,
+        comment,
+        position = 65535,
+        metadata,
+        ragQueryId,
+    } =
         params;
 
     try {
@@ -61,6 +78,8 @@ export async function createCardWithTasks(params: CreateCardWithTasksParams) {
             name,
             description: description || "",
             position,
+            metadata,
+            ragQueryId,
         });
 
         // Create tasks if provided

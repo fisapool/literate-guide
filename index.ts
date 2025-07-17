@@ -13,6 +13,11 @@ import * as lists from "./operations/lists.js";
 import * as projects from "./operations/projects.js";
 import * as tasks from "./operations/tasks.js";
 
+import {
+  registerWebhook,
+  unregisterWebhook,
+} from "./webhooks/index.js";
+
 // Import custom tools
 import {
   createCardWithTasks,
@@ -785,6 +790,24 @@ server.tool(
     return {
       content: [{ type: "text", text: JSON.stringify(result) }],
     };
+  }
+);
+
+// 9. Webhook Manager
+server.tool(
+  "mcp_kanban_webhook_manager",
+  "Register or unregister webhook URLs",
+  {
+    action: z.enum(["register", "unregister"]).describe("Action to perform"),
+    url: z.string().describe("Webhook URL"),
+  },
+  async (args) => {
+    if (args.action === "register") {
+      registerWebhook(args.url);
+    } else {
+      unregisterWebhook(args.url);
+    }
+    return { content: [{ type: "text", text: "ok" }] };
   }
 );
 

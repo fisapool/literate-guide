@@ -7,6 +7,7 @@
 
 import { z } from "zod";
 import { plankaRequest } from "../common/utils.js";
+import { emitEvent } from "../webhooks/index.js";
 
 // Schema definitions
 /**
@@ -110,6 +111,7 @@ export async function createComment(options: CreateCommentOptions) {
             },
         );
         const parsedResponse = CommentActionResponseSchema.parse(response);
+        emitEvent("comment.added", { comment: parsedResponse.item });
         return parsedResponse.item;
     } catch (error) {
         throw new Error(
