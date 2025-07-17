@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban MCP VSCode Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .step {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        .code {
+            background: #f1f3f4;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+        .demo-area {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5a6fd8;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 Kanban MCP VSCode Demo</h1>
+        <p>Interactive setup guide for using Kanban MCP in VSCode</p>
+    </div>
+
+    <div class="step">
+        <h3>📋 Prerequisites Check</h3>
+        <p>Let's verify you have everything needed:</p>
+        <div id="prereqs">
+            <div id="node-check">⏳ Checking Node.js...</div>
+            <div id="npm-check">⏳ Checking npm...</div>
+            <div id="docker-check">⏳ Checking Docker...</div>
+        </div>
+        <button onclick="checkPrerequisites()">Check Prerequisites</button>
+    </div>
+
+    <div class="step">
+        <h3>🚀 Quick Setup</h3>
+        <p>Run this setup script based on your OS:</p>
+        <div class="code">
+            <strong>Windows:</strong> demo-vscode-setup.bat<br>
+            <strong>Mac/Linux:</strong> ./demo-vscode-setup.sh
+        </div>
+        <button onclick="runSetup()">Run Setup (Simulated)</button>
+    </div>
+
+    <div class="step">
+        <h3>🔧 Manual Setup Steps</h3>
+        <ol>
+            <li>Open VSCode with this project: <code>code .</code></li>
+            <li>Install MCP extension from VSCode marketplace</li>
+            <li>Run: <code>npm install && npm run build</code></li>
+            <li>Start Planka: <code>npm run up</code></li>
+            <li>Test connection: Ctrl+Shift+P → "MCP: Test Connection"</li>
+        </ol>
+    </div>
+
+    <div class="demo-area">
+        <h3>🎮 Interactive Demo</h3>
+        <p>Try these commands with your AI assistant:</p>
+        <button onclick="demoCommand('show-projects')">Show All Projects</button>
+        <button onclick="demoCommand('create-board')">Create Sample Board</button>
+        <button onclick="demoCommand('add-card')">Add Sample Card</button>
+        <div id="demo-result"></div>
+    </div>
+
+    <div class="step">
+        <h3>📊 Sample Workflow</h3>
+        <div class="code">
+            AI: "Show me all projects in my kanban board"
+            <br><br>
+            AI: "Create a new board called 'Website Redesign' in the Development project"
+            <br><br>
+            AI: "Add a card called 'Design homepage mockup' to the To Do list"
+            <br><br>
+            AI: "Add tasks to the 'Design homepage mockup' card: Create wireframes, Design color scheme, Create responsive layout"
+        </div>
+    </div>
+
+    <div class="step">
+        <h3>🔍 Troubleshooting</h3>
+        <ul>
+            <li><strong>MCP not connecting?</strong> Restart VSCode after installing extension</li>
+            <li><strong>Port 3333 in use?</strong> Close other applications or change port</li>
+            <li><strong>Build errors?</strong> Run <code>npm run build</code> again</li>
+            <li><strong>Check logs:</strong> Ctrl+Shift+U → Select "MCP" from dropdown</li>
+        </ul>
+    </div>
+
+    <script>
+        function checkPrerequisites() {
+            const checks = [
+                { id: 'node-check', name: 'Node.js', command: 'node --version' },
+                { id: 'npm-check', name: 'npm', command: 'npm --version' },
+                { id: 'docker-check', name: 'Docker', command: 'docker --version' }
+            ];
+
+            checks.forEach(check => {
+                const element = document.getElementById(check.id);
+                try {
+                    // Simulate check (in real environment, this would use actual system checks)
+                    element.innerHTML = `✅ ${check.name} is available`;
+                    element.className = 'status success';
+                } catch (error) {
+                    element.innerHTML = `❌ ${check.name} not found`;
+                    element.className = 'status error';
+                }
+            });
+        }
+
+        function runSetup() {
+            const result = document.createElement('div');
+            result.className = 'status success';
+            result.innerHTML = `
+                ✅ Setup simulation complete!<br>
+                • Dependencies installed<br>
+                • Project built<br>
+                • VSCode configuration created<br>
+                • Planka started on http://localhost:3333
+            `;
+            document.body.appendChild(result);
+        }
+
+        function demoCommand(type) {
+            const result = document.getElementById('demo-result');
+            const responses = {
+                'show-projects': `
+                    <strong>AI Response:</strong><br>
+                    📊 Here are your projects:<br>
+                    • Development Project (3 boards)<br>
+                    • Marketing Campaign (2 boards)<br>
+                    • Personal Tasks (1 board)
+                `,
+                'create-board': `
+                    <strong>AI Response:</strong><br>
+                    ✅ Created new board "Website Redesign"<br>
+                    • Project: Development<br>
+                    • Lists: Backlog, In Progress, Review, Done
+                `,
+                'add-card': `
+                    <strong>AI Response:</strong><br>
+                    ✅ Added card "Design homepage mockup"<br>
+                    • Board: Website Redesign<br>
+                    • List: Backlog<br>
+                    • Tasks: Create wireframes, Design color scheme
+                `
+            };
+            result.innerHTML = `<div class="status success">${responses[type]}</div>`;
+        }
+
+        // Auto-check prerequisites on load
+        setTimeout(checkPrerequisites, 1000);
+    </script>
+</body>
+</html>

@@ -11,14 +11,6 @@
 				"PLANKA_AGENT_EMAIL": "demo@demo.demo",
 				"PLANKA_AGENT_PASSWORD": "demo"
 			}
-		},
-		"my-mcp-server-d70eb692": {
-			"type": "stdio",
-			"command": "MCP:",
-			"args": [
-				"Test",
-				"Connection"
-			]
 		}
 	},
 	"inputs": []
