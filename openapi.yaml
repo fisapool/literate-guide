@@ -1,0 +1,194 @@
+openapi: 3.0.1
+info:
+  title: Kanban MCP API
+  version: '0.1.0'
+servers:
+  - url: http://localhost
+paths:
+  /boards:
+    get:
+      summary: List boards
+      parameters:
+        - in: query
+          name: projectId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: List of boards
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BoardList'
+    post:
+      summary: Create board
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBoard'
+      responses:
+        '200':
+          description: Created board
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Board'
+  /boards/{id}:
+    get:
+      summary: Get board
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Board
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Board'
+    patch:
+      summary: Update board
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBoard'
+      responses:
+        '200':
+          description: Updated board
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Board'
+  /cards:
+    post:
+      summary: Create card
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCard'
+      responses:
+        '200':
+          description: Created card
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+  /cards/{id}:
+    patch:
+      summary: Update card
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCard'
+      responses:
+        '200':
+          description: Updated card
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+components:
+  schemas:
+    Board:
+      type: object
+      properties:
+        id:
+          type: string
+        projectId:
+          type: string
+        name:
+          type: string
+        position:
+          type: integer
+    BoardList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Board'
+    CreateBoard:
+      type: object
+      required: [projectId, name]
+      properties:
+        projectId:
+          type: string
+        name:
+          type: string
+        position:
+          type: integer
+    UpdateBoard:
+      type: object
+      properties:
+        name:
+          type: string
+        position:
+          type: integer
+    Card:
+      type: object
+      properties:
+        id:
+          type: string
+        listId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        position:
+          type: integer
+        metadata:
+          type: object
+          additionalProperties: true
+    CreateCard:
+      type: object
+      required: [listId, name]
+      properties:
+        listId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        position:
+          type: integer
+        metadata:
+          type: object
+          additionalProperties: true
+        ragQueryId:
+          type: string
+    UpdateCard:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        position:
+          type: integer
+        metadata:
+          type: object
+          additionalProperties: true
+        ragQueryId:
+          type: string
